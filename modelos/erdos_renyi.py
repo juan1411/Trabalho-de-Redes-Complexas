@@ -28,7 +28,7 @@ if __name__ == '__main__':
         print('Rede Social --', rede)
         t_carregar = time.time()
         # carregando em um objeto `nx.Graph`
-        G = nx.read_edgelist('redes/' + redes_sociais[rede], comments='%', nodetype=int)
+        G = nx.read_edgelist('./redes/' + redes_sociais[rede], comments='%', nodetype=int)
 
         # obtendo o N e o <k>:
         grais = np.array(G.degree)
