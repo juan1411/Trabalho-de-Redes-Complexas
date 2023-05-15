@@ -1,0 +1,2 @@
+# Ignore o python tentando criar um modulo
+__pycache__
