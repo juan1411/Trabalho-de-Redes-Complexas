@@ -1,2 +1,5 @@
 # Ignore o python tentando criar um modulo
 __pycache__
+
+# Por enquanto, ignore os arquivos .csv
+*.csv

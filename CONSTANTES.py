@@ -32,5 +32,5 @@ SIMULE = {'erdos-renyi': erdos,
 # de forma que: elas recebam G e retornem a metrica.
 grau_medio = lambda G: np.array(G.degree)[:, 1].mean()
 
-# dicionario com as funcoes para calcular as metricas
-METRICAS = {'grau_medio': grau_medio}
+# dicionario com as funcoes para calcular as medidas
+MEDIDAS = {'grau_medio': grau_medio}

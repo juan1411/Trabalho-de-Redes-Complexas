@@ -37,6 +37,40 @@ def ler_rede(nome:str) -> tuple:
     return N, grau_medio
 
 
+def calcula_medidas(G: nx.Graph, resultados_anteriores:dict) -> dict:
+    """Função para calcular as medidas especificadas
+     em `MEDIDAS` e atualizar os resultados.
+    
+    # Parâmetros
+    G: networkx.Graph
+        grafo para o qual serão calculadas as medidas
+    
+    resultados_anteriores: dict
+        dicionário com os resultados anteriores
+
+    # Retorno
+    É retornado o dicionário `resltados_anteriores`, porém
+     atualizado, agora incluindo as medidas do grafo `G`.
+    """
+    # por seguranca, tomando uma copia dos resultados_anteriores:
+    resultados_novos = resultados_anteriores.copy()
+
+    # calculando todas as medidas:
+    for med in MEDIDAS.keys():
+        medida = np.nan # inicializa a medida como NaN caso de algum erro
+
+        try: # tentando calcular a medida
+            medida = MEDIDAS[med](G)
+
+        except Exception as e: # log de erro
+            print('Tentando calcular a medida', med, 'ocorreu o erro', e)
+
+        finally: # em todo caso, sempre atualize os resultados
+            resultados_novos[med].append(medida)
+
+    return resultados_novos
+
+
 def main(modelo:str):
     """Função principal para rodar as simulações da redes sociais e medir o tempo de cada parte.
 
@@ -46,8 +80,13 @@ def main(modelo:str):
     # aqui ficarao guardados os resultados das metricas
     # para cada simulacao de cada rede social deste modelo:
     resultados = {'Iteracao': [], 'Rede Social':[]}
-    for metrica in METRICAS.keys():
+    for metrica in MEDIDAS.keys():
         resultados[metrica] = []
+
+    # a criterio de curiosidade, vamos guardar o tempo total
+    # de simulcao e de calculo das medidas
+    t_total_simulcao = 0
+    t_total_calculo = 0
 
     # Agora sim comecam as simulacoes:
     print('\n# Iniciando simulações do Modelo', modelo.capitalize(),'#\n')
@@ -72,30 +111,49 @@ def main(modelo:str):
         # calculando as medidas
         ######################################
         print('Començando as simulações para a rede', rede, '\n')
-        t_simulacao = time.time()
+        t_simulacao = 0
         t_calculo_medidas = 0
 
         for i in range(1, VEZES+1):
             # simulando o modelo:
+            t_inicio_simulacao = time.time()
             G_simulado = SIMULE[modelo](N, grau_medio)
+            t_simulacao += time.time() - t_inicio_simulacao
+            
+            resultados['Iteracao'].append(i)
+            resultados['Rede Social'].append(rede)
 
-            # calculando as metricas:
+            # calculando as medidas e atualizando os resultados:
             t_inicio_calculo = time.time()
-            grau_medio_simulado = METRICAS['grau_medio'](G_simulado)
+            resultados = calcula_medidas(G_simulado, resultados)
             t_calculo_medidas += time.time() - t_inicio_calculo
 
-            print(f'Simulacao num.{i} --- Grau Médio Simulado: {grau_medio_simulado:.4f}')
+            print(f'{rede.capitalize()} \tSimulação #{i} \tOK')
             
 
         print('\nFim das simulações para a rede', rede)
-        print(f'Tempo de simulação: {(time.time() - t_simulacao)/60:.2f} mins.\n')
+        print(f'Tempo de simulação: {t_simulacao/60:.2f} mins.\n')
+        t_total_simulcao += t_simulacao
 
-        print('Fim dos cálculos das medidas para as simulações.')
+        print('Fim dos cálculos das medidas para as simulações da rede', rede)
         print(f'Tempo de cálculo: {t_calculo_medidas:.2f} segs.\n')
+        t_total_calculo += t_calculo_medidas
+
+    ######################################
+    # log extra dos tempo totais:
+    print(f'Fim de todas as simulações. Tempo total: {t_total_simulcao/60:.2f} mins.')
+    print(f'Fim do cálculo de todas as medidas. Tempo total: {t_total_calculo:.2f} segs.')
 
     ######################################
     # salvando os resultados
     ######################################
+    nome_arq = 'Modelo_'+str(modelo)+'.csv'
+    print(f'\nComeçando agora a compilar o arquivo [{nome_arq}] com os resultados.')
+    t_resultados = time.time()
+    pd.DataFrame(resultados, columns=resultados.keys()).to_csv(nome_arq, index=False)
+
+    print('Fim da compilação dos resultados.')
+    print(f'Tempo de compilação: {(time.time() - t_resultados):.2f} segs.\n')
 
     print('Fim de todas as simulações do modelo', modelo.capitalize(), 'para todas as redes sociais.')
     print(f'Tempo necessário para executar tudo: {(time.time() - t_inicial)/60:.2f} mins.\n')

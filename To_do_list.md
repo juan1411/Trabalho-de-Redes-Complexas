@@ -14,11 +14,12 @@ Específico dos algoritmos de simulação:
 [X] - carregar a rede social original;
 [X] - obter o N e o <k> reais;
 [X] - descarregar a rede (para economizar memória);
-[ ] - simular `i` vezes o modelo com os parâmetros N e <k>;
-[ ] - calcular as medidas das simulações;
-[ ] - salvar as medidas em um arquivo `.csv`;
+[X] - simular `i` vezes o modelo com os parâmetros N e <k>;
+[X] - calcular as medidas das simulações;
+[X] - salvar as medidas em um arquivo `.csv`;
 
-[ ] - repetir os códigos para todas redes sociais;
+[X] - repetir os códigos para todas redes sociais;
+[ ] - Precisamos definir tudo ainda, então devem surgir bugs...
 ----- fim do arquivo.
 [ ] - (extra) simular os modelos em paralelo;
 
