@@ -2,6 +2,7 @@
 # Arquivo com as constantes que precisamos usar por todo o trabalho
 ########################################################################
 import networkx as nx
+import numpy as np
 
 # definicao da semente, em prol da reprodutibilidade:
 SEMENTE = 42
@@ -20,6 +21,14 @@ erdos    = lambda N, k: nx.erdos_renyi_graph(N, k/(N-1), seed=SEMENTE)
 barabasi = lambda N, k: nx.barabasi_albert_graph(N, int(k/2), seed=SEMENTE)
 
 # dicionario com as funcoes para simular os modelos
-simule = {'erdos-renyi': erdos,
+SIMULE = {'erdos-renyi': erdos,
           'barabasi-albert': barabasi
         }
+
+#######################################################
+# vamos padronizar as funcoes para calcular a metricas
+# de forma que: elas recebam G e retornem a metrica.
+grau_medio = lambda G: np.array(G.degree)[:, 1].mean()
+
+# dicionario com as funcoes para calcular as metricas
+METRICAS = {'grau_medio': grau_medio}
