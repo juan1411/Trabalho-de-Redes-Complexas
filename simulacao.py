@@ -76,15 +76,21 @@ def main(modelo:str):
         t_calculo_medidas = 0
 
         for i in range(1, VEZES+1):
-            # print(i, '- ésima vez simulando o modelo', modelo)
+            # simulando o modelo:
             G_simulado = SIMULE[modelo](N, grau_medio)
+
+            # calculando as metricas:
+            t_inicio_calculo = time.time()
             grau_medio_simulado = METRICAS['grau_medio'](G_simulado)
+            t_calculo_medidas += time.time() - t_inicio_calculo
+
             print(f'Simulacao num.{i} --- Grau Médio Simulado: {grau_medio_simulado:.4f}')
+            
 
         print('\nFim das simulações para a rede', rede)
-        print(f'Tempo de simulação: {(time.time() - t_simulacao):.2f} segs.\n')
+        print(f'Tempo de simulação: {(time.time() - t_simulacao)/60:.2f} mins.\n')
 
-        print('\nFim dos cálculos das medias para as simulações.')
+        print('Fim dos cálculos das medidas para as simulações.')
         print(f'Tempo de cálculo: {t_calculo_medidas:.2f} segs.\n')
 
     ######################################

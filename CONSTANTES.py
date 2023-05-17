@@ -11,8 +11,10 @@ SEMENTE = 42
 VEZES = 10
 
 # dicionario com o caminho ate os dados de cada rede social:
-redes_sociais = {'youtube': 'com-youtube/out.com-youtube',
-                 }
+redes_sociais = {'twitter-pequeno': 'ego-twitter/out.ego-twitter'
+                 # 'twitter-medio': 'munmun_twitter_social/out.munmun_twitter_social'
+                 # 'youtube': 'com-youtube/out.com-youtube'
+                }
 
 #######################################################
 # vamos padronizar as funcoes para simular os modelos

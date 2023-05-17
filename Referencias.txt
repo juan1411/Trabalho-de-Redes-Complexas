@@ -4,6 +4,6 @@ http://konect.cc/categories/Social/
 Têm mais sites no pdf que o Professor passou para o trabalho
 extra de classificação de redes. 
 
-
+Twitter Follows (20mil): http://konect.cc/networks/ego-twitter/
+Twitter Follows (400mil): http://konect.cc/networks/munmun_twitter_social/
 Youtube Friendship: http://konect.cc/networks/com-youtube/
-Twitter (6 Gb): http://konect.cc/networks/twitter/
