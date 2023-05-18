@@ -9,7 +9,7 @@ import pandas as pd
 import time
 
 # para executar as simulacoes em paralelo:
-from multiprocessing import pool
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 # constantes do projeto
 from CONSTANTES import *
@@ -40,9 +40,7 @@ def ler_rede(nome:str) -> tuple:
     return int(N), grau_medio
 
 
-def calcula_medidas(G: nx.Graph, iteracao:int, nome_rede:str
-                    # resultados_anteriores:pd.DataFrame
-                   ) -> pd.DataFrame:
+def calcula_medidas(G: nx.Graph, iteracao:int, nome_rede:str) -> pd.DataFrame:
     """Função para calcular as medidas especificadas
      em `MEDIDAS` e atualizar os resultados.
     
@@ -82,16 +80,25 @@ def calcula_medidas(G: nx.Graph, iteracao:int, nome_rede:str
                            med] = medida
 
 
-def simula_modelo(modelo:str, N:int, grau_medio:float, iteracao:int, rede:str):
-    """
-    """
-    # simulando o modelo:
-    G_simulado = SIMULE[modelo](N, grau_medio)
-    print(f'{rede.capitalize()} \tSimulação #{iteracao} \tOK')
+def simula_modelo(modelo:str, N:int, grau_medio:float) -> nx.Graph:
+    """Função para simular o modelo uma única vez.
 
-    # calculando as medidas e atualizacao os resultados:
-    calcula_medidas(G_simulado, iteracao, rede)
-    print(f'{rede.capitalize()} \tMedidas #{iteracao} \tOK')
+    # Parâmetros
+
+    `modelo`: str
+        nome do modelo que deve ser simulado; deve ser uma chave de `SIMULE`
+
+    `N`: int
+        número de vértices desejados para o grafo
+
+    `grau_medio`: float
+        grau médio (ou número médio de conexões por nó) desejado para o grafo
+
+    # Retorno
+    É retornado o grafo simulado, sendo ele um objeto `networkx.Graph`.
+    """
+    G_simulado = SIMULE[modelo](N, grau_medio)
+    return G_simulado
 
 
 def main(modelo:str):
@@ -143,30 +150,45 @@ def main(modelo:str):
         # calculando as medidas
         ######################################
         print('Començando as simulações para a rede', rede, '\n')
-        
-        # argumentos de todas as chamadas:
-        args_para_simulacao = [(modelo, N, grau_medio, i, rede) for i in range(1, VEZES+1)]
 
-        # faremos a contagem dos tempos
+        # faremos a contagem de tempo
         t_simulacao = time.time()
 
         # executando as simulacoes em paralelo, 5 por vez:
-        with pool.ThreadPool(5) as p:
-            p.starmap(simula_modelo, args_para_simulacao)
+        with ProcessPoolExecutor(5) as executor:
+
+            # basicamente, esse dicionario contem uma `resposta` do executor.submit
+            # essas `respostas` chegam assim que a funcao `simula_modelo` retorna algo
+            futuros_retornos = {
+                executor.submit(simula_modelo, modelo, N, grau_medio):
+                    (i, rede) for i in range(1, VEZES+1)
+                }
+
+            # assim que `executor.submit` retornar uma resposta,
+            # já é possível entrar neste for-loop
+            for simulacao in as_completed(futuros_retornos):
+                ite, nome_rede = futuros_retornos[simulacao]
+                print(f'{nome_rede.capitalize()} \tSimulação #{ite} \tOK')
+                G_simulado = simulacao.result()
+
+                # calculando todas as medidas para o grafo simulado
+                calcula_medidas(G_simulado, ite, nome_rede)
+                print(f'{rede.capitalize()} \tMedidas #{ite} \tOK')
+
 
         # atualizando os tempos
         t_simulacao = time.time() - t_simulacao
 
         # logs de registro
         print('\nFim das simulações para a rede', rede)
-        print(f'Tempo de simulação: {t_simulacao//60:.2f} mins e {t_simulacao%60:.2f} segs.\n')
+        print(f'Tempo de simulação: {t_simulacao//60:.0f} mins e {t_simulacao%60:.2f} segs.\n')
         t_total_simulacao += t_simulacao
 
 
     ######################################
     # log extra dos tempo totais:
     print('Fim de todas as simulações.',
-          f'Tempo total: {t_total_simulacao//60:.2f} mins e {t_total_simulacao%60:.2f} segs.')
+          f'Tempo total: {t_total_simulacao//60:.0f} mins e {t_total_simulacao%60:.2f} segs.')
     
 
     ######################################
@@ -182,7 +204,7 @@ def main(modelo:str):
 
     print('Fim de todas as simulações do modelo', modelo.capitalize(), 'para todas as redes sociais.')
     t_final = time.time() - t_inicial
-    print(f'Tempo necessário para executar tudo: {t_final//60:.2f} mins e {t_final%60:.2f} segs.\n')
+    print(f'Tempo necessário para executar tudo: {t_final//60:.0f} mins e {t_final%60:.2f} segs.\n')
 
 
 
