@@ -40,9 +40,11 @@ def ler_rede(nome:str) -> tuple:
     return int(N), grau_medio
 
 
-def calcula_medidas(G: nx.Graph, iteracao:int, nome_rede:str) -> pd.DataFrame:
+def calcula_medidas(G: nx.Graph, iteracao:int, nome_rede:str):
     """Função para calcular as medidas especificadas
      em `MEDIDAS` e atualizar os resultados.
+    Atenção!! Os resultados que serão atualizados
+     estão em uma variável global.
     
     # Parâmetros
     `G`: networkx.Graph
@@ -53,13 +55,6 @@ def calcula_medidas(G: nx.Graph, iteracao:int, nome_rede:str) -> pd.DataFrame:
 
     `nome_rede`: str
         justamente o nome da rede social da qual `G` foi simulado
-    
-    `resultados_anteriores`: pandas.DataFrame
-        dicionário com os resultados anteriores
-
-    # Retorno
-    É retornado o dataframe `resltados_anteriores`, porém
-     atualizado, agora incluindo as medidas do grafo `G`.
     """
     # variavel global
     global resultados
@@ -72,7 +67,7 @@ def calcula_medidas(G: nx.Graph, iteracao:int, nome_rede:str) -> pd.DataFrame:
             medida = MEDIDAS[med](G)
 
         except Exception as e: # log de erro
-            print('Tentando calcular a medida', med, 'ocorreu o erro', e)
+            print('Tentando calcular a medida', med, 'ocorreu o erro:', e)
 
         finally: # em todo caso, sempre atualize os resultados
             resultados.loc[(resultados['Iteracao']==iteracao) &
