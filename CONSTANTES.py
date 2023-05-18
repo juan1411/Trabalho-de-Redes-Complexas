@@ -33,4 +33,7 @@ SIMULE = {'erdos-renyi': erdos,
 grau_medio = lambda G: np.array(G.degree)[:, 1].mean()
 
 # dicionario com as funcoes para calcular as medidas
-MEDIDAS = {'grau_medio': grau_medio}
+MEDIDAS = {'grau_medio': grau_medio
+           #'assortatividade':nx.degree_assortativity_coefficient,
+           #'menor_caminho':nx.betweenness_centrality
+        }

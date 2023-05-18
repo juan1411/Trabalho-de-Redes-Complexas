@@ -5,11 +5,11 @@ import networkx as nx
 # biblioteca para gerar o arquivo csv com as medidas
 import pandas as pd
 
-# biblioteca para medir tempo de execucao de codigo:
+# biblioteca para medir o tempo de execucao do codigo:
 import time
 
 # para executar as simulacoes em paralelo:
-from multiprocessing import Pool
+from multiprocessing import pool
 
 # constantes do projeto
 from CONSTANTES import *
@@ -40,8 +40,8 @@ def ler_rede(nome:str) -> tuple:
     return int(N), grau_medio
 
 
-def calcula_medidas(G: nx.Graph, iteracao:int, nome_rede:str,
-                    resultados_anteriores:pd.DataFrame
+def calcula_medidas(G: nx.Graph, iteracao:int, nome_rede:str
+                    # resultados_anteriores:pd.DataFrame
                    ) -> pd.DataFrame:
     """Função para calcular as medidas especificadas
      em `MEDIDAS` e atualizar os resultados.
@@ -63,8 +63,8 @@ def calcula_medidas(G: nx.Graph, iteracao:int, nome_rede:str,
     É retornado o dataframe `resltados_anteriores`, porém
      atualizado, agora incluindo as medidas do grafo `G`.
     """
-    # por seguranca, tomando uma copia dos resultados_anteriores:
-    resultados_novos = resultados_anteriores.copy()
+    # variavel global
+    global resultados
 
     # calculando todas as medidas:
     for med in MEDIDAS.keys():
@@ -77,11 +77,21 @@ def calcula_medidas(G: nx.Graph, iteracao:int, nome_rede:str,
             print('Tentando calcular a medida', med, 'ocorreu o erro', e)
 
         finally: # em todo caso, sempre atualize os resultados
-            resultados_novos.loc[(resultados_novos['Iteracao']==iteracao) &
-                                 (resultados_novos['Rede Social']==nome_rede),
-                                med] = medida
+            resultados.loc[(resultados['Iteracao']==iteracao) &
+                           (resultados['Rede Social']==nome_rede),
+                           med] = medida
 
-    return resultados_novos
+
+def simula_modelo(modelo:str, N:int, grau_medio:float, iteracao:int, rede:str):
+    """
+    """
+    # simulando o modelo:
+    G_simulado = SIMULE[modelo](N, grau_medio)
+    print(f'{rede.capitalize()} \tSimulação #{iteracao} \tOK')
+
+    # calculando as medidas e atualizacao os resultados:
+    calcula_medidas(G_simulado, iteracao, rede)
+    print(f'{rede.capitalize()} \tMedidas #{iteracao} \tOK')
 
 
 def main(modelo:str):
@@ -90,6 +100,9 @@ def main(modelo:str):
     `modelo`: str
         nome do modelo que deve ser simulado.
     """
+    # variaveis globais:
+    global resultados
+
     # os nomes das redes sociais:
     chaves = [ch for ch in redes_sociais.keys()]
 
@@ -104,12 +117,8 @@ def main(modelo:str):
     resultados['Rede Social'] = np.repeat(chaves, VEZES)
     resultados['Iteracao'] = list(range(1, VEZES+1))*len(chaves)
 
-    print(resultados.head())
-
-    # a criterio de curiosidade, vamos guardar o tempo total
-    # de simulcao e de calculo das medidas
-    t_total_simulcao = 0
-    t_total_calculo = 0
+    # por curiosidade, vamos guardar o tempo total de simulcao
+    t_total_simulacao = 0
 
     # Agora sim comecam as simulacoes:
     print('\n# Iniciando simulações do Modelo', modelo.capitalize(),'#\n')
@@ -134,35 +143,31 @@ def main(modelo:str):
         # calculando as medidas
         ######################################
         print('Començando as simulações para a rede', rede, '\n')
-        t_simulacao = 0
-        t_calculo_medidas = 0
+        
+        # argumentos de todas as chamadas:
+        args_para_simulacao = [(modelo, N, grau_medio, i, rede) for i in range(1, VEZES+1)]
 
-        for i in range(1, VEZES+1):
-            # simulando o modelo:
-            t_inicio_simulacao = time.time()
-            G_simulado = SIMULE[modelo](N, grau_medio)
-            t_simulacao += time.time() - t_inicio_simulacao
+        # faremos a contagem dos tempos
+        t_simulacao = time.time()
 
-            # calculando as medidas e atualizando os resultados:
-            t_inicio_calculo = time.time()
-            resultados = calcula_medidas(G_simulado, i, rede, resultados)
-            t_calculo_medidas += time.time() - t_inicio_calculo
+        # executando as simulacoes em paralelo, 5 por vez:
+        with pool.ThreadPool(5) as p:
+            p.starmap(simula_modelo, args_para_simulacao)
 
-            print(f'{rede.capitalize()} \tSimulação #{i} \tOK')
-            
+        # atualizando os tempos
+        t_simulacao = time.time() - t_simulacao
 
+        # logs de registro
         print('\nFim das simulações para a rede', rede)
-        print(f'Tempo de simulação: {t_simulacao/60:.2f} mins.\n')
-        t_total_simulcao += t_simulacao
+        print(f'Tempo de simulação: {t_simulacao//60:.2f} mins e {t_simulacao%60:.2f} segs.\n')
+        t_total_simulacao += t_simulacao
 
-        print('Fim dos cálculos das medidas para as simulações da rede', rede)
-        print(f'Tempo de cálculo: {t_calculo_medidas:.2f} segs.\n')
-        t_total_calculo += t_calculo_medidas
 
     ######################################
     # log extra dos tempo totais:
-    print(f'Fim de todas as simulações. Tempo total: {t_total_simulcao/60:.2f} mins.')
-    print(f'Fim do cálculo de todas as medidas. Tempo total: {t_total_calculo:.2f} segs.')
+    print('Fim de todas as simulações.',
+          f'Tempo total: {t_total_simulacao//60:.2f} mins e {t_total_simulacao%60:.2f} segs.')
+    
 
     ######################################
     # salvando os resultados
@@ -176,7 +181,8 @@ def main(modelo:str):
     print(f'Tempo de compilação: {(time.time() - t_resultados):.2f} segs.\n')
 
     print('Fim de todas as simulações do modelo', modelo.capitalize(), 'para todas as redes sociais.')
-    print(f'Tempo necessário para executar tudo: {(time.time() - t_inicial)/60:.2f} mins.\n')
+    t_final = time.time() - t_inicial
+    print(f'Tempo necessário para executar tudo: {t_final//60:.2f} mins e {t_final%60:.2f} segs.\n')
 
 
 
