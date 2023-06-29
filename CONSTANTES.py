@@ -5,7 +5,6 @@ import networkx as nx
 import numpy as np
 
 # definicao da semente, em prol da reprodutibilidade:
-SEMENTE = 42
 
 # quantidade de vezes que deve simular os modelos:
 VEZES = 10
@@ -19,12 +18,15 @@ redes_sociais = {'twitter-pequeno': 'ego-twitter/out.ego-twitter'
 #######################################################
 # vamos padronizar as funcoes para simular os modelos
 # de forma que: elas recebam (N, k) e retornem o grafo.
-erdos    = lambda N, k: nx.erdos_renyi_graph(N, k/(N-1), seed=SEMENTE)
-barabasi = lambda N, k: nx.barabasi_albert_graph(N, int(k/2), seed=SEMENTE)
+erdos    = lambda N, k: nx.erdos_renyi_graph(N, k/(N-1))
+barabasi = lambda N, k: nx.barabasi_albert_graph(N, int(k/2))
+wattz =    lambda N, k: nx.watts_strogatz_graph(N, int(k/2),1)
+
 
 # dicionario com as funcoes para simular os modelos
 SIMULE = {'erdos-renyi': erdos,
-          'barabasi-albert': barabasi
+          'barabasi-albert': barabasi,
+           'watts_strogatz_graph' : wattz
         }
 
 #######################################################

@@ -15,10 +15,6 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from CONSTANTES import *
 
 
-# definindo a semente em prol da reprodutibilidade:
-np.random.seed = SEMENTE
-
-
 def ler_rede(nome:str) -> tuple:
     """Função para ler as redes e pegar o N (quantidade de nós) e <k> (grau médio).
 
@@ -204,24 +200,16 @@ def main(modelo:str):
 
 
 if __name__ == '__main__':
-    msg = '\nOlá, este é o arquivo para simular os modelos e calcular as métricas!!!'
-    msg += '\nEle segue o seguinte pipeline:'
-    msg += '\n\t 1. definição o modelo; \n\t 2. carregamento uma rede social;'
-    msg += '\n\t 3. obtenção do N e do <k> da rede; \n\t 4. descarregamento a rede;'
-    msg += '\n\t 5. simulação `i` vezes do modelo para a rede;'
-    msg += '\n\t 6. cálculo das métricas para cada simulação;'
-    msg += '\n\t 7. repetição de 2. a 6. para todas as redes sociais;'
-    msg += '\n\t 8. salvamento dos resultados em um arquivo .csv.\n'
-    msg += '\nEntão, por favor, defina o modelo. As opções disponíveis são:'
-    print(msg)
+    # msg = '\nOlá, este é o arquivo para simular os modelos e calcular as métricas!!!'
+    # msg += '\nEle segue o seguinte pipeline:'
+    # msg += '\n\t 1. definição o modelo; \n\t 2. carregamento uma rede social;'
+    # msg += '\n\t 3. obtenção do N e do <k> da rede; \n\t 4. descarregamento a rede;'
+    # msg += '\n\t 5. simulação `i` vezes do modelo para a rede;'
+    # msg += '\n\t 6. cálculo das métricas para cada simulação;'
+    # msg += '\n\t 7. repetição de 2. a 6. para todas as redes sociais;'
+    # msg += '\n\t 8. salvamento dos resultados em um arquivo .csv.\n'
+    # msg += '\nEntão, por favor, defina o modelo. As opções disponíveis são:'
+    # print(msg)
     opcoes = list(SIMULE.keys())
-    print(opcoes)
-
-    modelo = input('\nModelo escolhido: ')
-    while modelo not in opcoes:
-        print('Esta opção de modelo não é válida, escolha uma da lista.')
-        modelo = input('\nModelo: ')
-
-    del msg, opcoes # economizando memoria
-
-    main(modelo)
+    for modelo in opcoes:
+        main(modelo)
