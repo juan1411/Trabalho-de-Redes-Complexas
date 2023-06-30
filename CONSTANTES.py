@@ -27,14 +27,35 @@ def shannon_entropy(G):
             H = H - p*math.log(p, 2)
     return H
 
+
+corr_grau_vizinhos = lambda G: np.corrcoef(
+    list(dict(G.degree()).values()),
+    list(nx.average_neighbor_degree(G).values())
+    )[0,1]
+
+corr_grau_close = lambda G: np.corrcoef(
+    list(dict(G.degree()).values()),
+    list(dict(nx.closeness_centrality(G)).values())
+    )[0,1]
+
+corr_grau_bet = lambda G: np.corrcoef(
+    list(dict(G.degree()).values()),
+    list(dict(nx.betweenness_centrality(G)).values())
+    )[0,1]
+
+
 # quantidade de vezes que deve simular os modelos:
 VEZES = 10
 
 # dicionario com o caminho ate os dados de cada rede social:
-redes_sociais = {'twitter-pequeno': 'ego-twitter/out.ego-twitter'
-                 # 'twitter-medio': 'munmun_twitter_social/out.munmun_twitter_social'
-                 # 'youtube': 'com-youtube/out.com-youtube'
-                }
+redes_sociais = {
+    'twitter-pequeno': 'ego-twitter/out.ego-twitter',
+    'facebook': 'ego-facebook/out.ego-facebook',
+    'hamster': 'petster-hamster/out.petster-hamster',
+    'bitcoin': 'soc-sign-bitcoinalpha/out.soc-sign-bitcoinalpha'
+    # 'twitter-medio': 'munmun_twitter_social/out.munmun_twitter_social'
+    # 'youtube': 'com-youtube/out.com-youtube'
+}
 
 #######################################################
 # vamos padronizar as funcoes para simular os modelos
@@ -48,7 +69,7 @@ wattz =    lambda N, k: nx.watts_strogatz_graph(N, int(k),p = 1) ####Debugar
 # dicionario com as funcoes para simular os modelos
 SIMULE = {'erdos-renyi': erdos,
           'barabasi-albert': barabasi,
-           'watts_strogatz_graph' : wattz
+          'watts_strogatz_graph' : wattz
         }
 
 #######################################################
@@ -57,13 +78,17 @@ SIMULE = {'erdos-renyi': erdos,
 grau_medio = lambda G: np.array(G.degree)[:, 1].mean()
 
 # dicionario com as funcoes para calcular as medidas
-MEDIDAS = {'grau_medio': grau_medio,
-           'assortatividade':nx.degree_assortativity_coefficient,
-           'coef_clusterizacao': nx.average_clustering,
-           'transitivade' : nx.transitivity,
-           'entropy' : shannon_entropy
-          # 'average_shortests_path_lenght' : nx.average_shortest_path_length
+MEDIDAS = {
+    'grau_medio': grau_medio,
+    'assortatividade':nx.degree_assortativity_coefficient,
+    'coef_clusterizacao': nx.average_clustering,
+    'transitivade' : nx.transitivity,
+    'entropy' : shannon_entropy,
+    'cor_grau_e_grau_medio_vizinhos': corr_grau_vizinhos,
+    'cor_grau_e_proximidade': corr_grau_close,
+    'cor_grau_e_centralidade': corr_grau_bet
+    # 'average_shortests_path_lenght' : nx.average_shortest_path_length
 
-           #'diametro': nx.diameter
-           #'menor_caminho':nx.betweenness_centrality
-        }
+    #'diametro': nx.diameter
+    #'menor_caminho':nx.betweenness_centrality
+}
