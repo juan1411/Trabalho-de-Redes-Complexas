@@ -26,6 +26,11 @@ def ler_rede(nome:str) -> tuple:
     """    
     # carregando em um objeto `nx.Graph`
     G = nx.read_edgelist('./redes/' + redes_sociais[nome], comments='%', nodetype=int)
+    # G = G.to_undirected()
+    # G.remove_edges_from(nx.selfloop_edges(G))
+    # Gcc = sorted(nx.connected_components(G), key=len, reverse=True)
+    # G = G.subgraph(Gcc[0])
+    # G = nx.convert_node_labels_to_integers(G, first_label=0)
 
     # obtendo o N e o <k>:
     grais = np.array(G.degree)

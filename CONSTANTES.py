@@ -87,7 +87,7 @@ MEDIDAS = {
     # 'cor_grau_e_grau_medio_vizinhos': corr_grau_vizinhos,
     # 'cor_grau_e_proximidade': corr_grau_close,
     # 'cor_grau_e_centralidade': corr_grau_bet,
-    # 'average_shortests_path_lenght' : nx.average_shortest_path_length,
-   # 'diametro': nx.diameter
-    #'menor_caminho':nx.betweenness_centrality
+    #  'average_shortests_path_lenght' : nx.average_shortest_path_length,
+    # 'diametro': nx.diameter
+    #'BC':nx.betweenness_centrality
 }
