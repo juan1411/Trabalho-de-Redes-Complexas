@@ -2,12 +2,13 @@ O que precisa ser feito no Trabalho:
 
 - [X] fazer uma lista com o que deve ser feito;
 - [X] conseguir os dados das redes sociais;
-- [ ] definir quais modelos vamos usar para simulação;
-- [ ] definir quais medidas de rede vamos salvar;
-- [ ] implementar o algoritmo de simulação para cada modelo;
-- [ ] definir a quantidade de simulações de cada modelo;
+- [X] definir quais modelos vamos usar para simulação;
+- [X] definir quais medidas de rede vamos salvar;
+- [X] implementar o algoritmo de simulação para cada modelo;
+- [X] definir a quantidade de simulações de cada modelo;
 - [ ] organizar um notebook de visualização das propriedades das redes;
 - [ ] definir um método de redução de dimensionalidade;
+- [ ] Rodar um Classificador
 
 ---
 

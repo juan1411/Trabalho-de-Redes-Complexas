@@ -2,4 +2,4 @@
 __pycache__
 
 # Por enquanto, ignore os arquivos .csv
-*.csv
+#*.csv

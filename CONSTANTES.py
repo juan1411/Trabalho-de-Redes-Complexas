@@ -52,7 +52,7 @@ redes_sociais = {
     'twitter-pequeno': 'ego-twitter/out.ego-twitter',
     'facebook': 'ego-facebook/out.ego-facebook',
     'hamster': 'petster-hamster/out.petster-hamster',
-    'bitcoin': 'soc-sign-bitcoinalpha/out.soc-sign-bitcoinalpha'
+    #'bitcoin': 'download.tsv.soc-sign-bitcoinotc/soc-sign-bitcoinotc/out.soc-sign-bitcoinotc'
     # 'twitter-medio': 'munmun_twitter_social/out.munmun_twitter_social'
     # 'youtube': 'com-youtube/out.com-youtube'
 }
@@ -84,11 +84,10 @@ MEDIDAS = {
     'coef_clusterizacao': nx.average_clustering,
     'transitivade' : nx.transitivity,
     'entropy' : shannon_entropy,
-    'cor_grau_e_grau_medio_vizinhos': corr_grau_vizinhos,
-    'cor_grau_e_proximidade': corr_grau_close,
-    'cor_grau_e_centralidade': corr_grau_bet
-    # 'average_shortests_path_lenght' : nx.average_shortest_path_length
-
-    #'diametro': nx.diameter
+    # 'cor_grau_e_grau_medio_vizinhos': corr_grau_vizinhos,
+    # 'cor_grau_e_proximidade': corr_grau_close,
+    # 'cor_grau_e_centralidade': corr_grau_bet,
+    # 'average_shortests_path_lenght' : nx.average_shortest_path_length,
+   # 'diametro': nx.diameter
     #'menor_caminho':nx.betweenness_centrality
 }
