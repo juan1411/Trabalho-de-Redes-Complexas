@@ -77,17 +77,20 @@ SIMULE = {'erdos-renyi': erdos,
 # de forma que: elas recebam G e retornem a metrica.
 grau_medio = lambda G: np.array(G.degree)[:, 1].mean()
 
+# bc_mean = lambda G: np.mean(
+#     list(dict(nx.betweenness_centrality(G)).values()))
+
 # dicionario com as funcoes para calcular as medidas
 MEDIDAS = {
     'grau_medio': grau_medio,
     'assortatividade':nx.degree_assortativity_coefficient,
     'coef_clusterizacao': nx.average_clustering,
-    'transitivade' : nx.transitivity,
+    'transitividade' : nx.transitivity,
     'entropy' : shannon_entropy,
     # 'cor_grau_e_grau_medio_vizinhos': corr_grau_vizinhos,
     # 'cor_grau_e_proximidade': corr_grau_close,
     # 'cor_grau_e_centralidade': corr_grau_bet,
     #  'average_shortests_path_lenght' : nx.average_shortest_path_length,
     # 'diametro': nx.diameter
-    #'BC':nx.betweenness_centrality
+   # 'bc_mean': bc_mean
 }

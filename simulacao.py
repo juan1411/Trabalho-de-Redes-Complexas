@@ -41,6 +41,43 @@ def ler_rede(nome:str) -> tuple:
     return int(N), grau_medio
 
 
+def rede_real(nome:str) -> tuple:
+    """Função para ler as redes e pegar o N (quantidade de nós) e <k> (grau médio).
+
+    `nome`: str
+        apelido interno da rede/chave do dicionário `rede_sociais`.
+
+    return: tuple
+        É retornado justamente o N e o <k>. (N, k).
+    """    
+    # carregando em um objeto `nx.Graph`
+    G = nx.read_edgelist('./redes/' + redes_sociais[nome], comments='%', nodetype=int)
+    # G = G.to_undirected()
+    # G.remove_edges_from(nx.selfloop_edges(G))
+    # Gcc = sorted(nx.connected_components(G), key=len, reverse=True)
+    # G = G.subgraph(Gcc[0])
+    # G = nx.convert_node_labels_to_integers(G, first_label=0)
+
+    # obtendo o N e o <k>:
+    grais = np.array(G.degree)
+    N = grais.shape[0]
+    grau_medio = grais[:, 1].mean()
+
+    ass = nx.degree_assortativity_coefficient(G),
+    avc = nx.average_clustering(G),
+    ts =  nx.transitivity(G),
+    entropy =  shannon_entropy(G)
+
+    df_real =  pd.DataFrame({
+    'grau_medio': grau_medio,
+    'assortatividade': ass,
+    'coef_clusterizacao': avc,
+    'transitividade' : ts,
+    'entropy' : entropy})
+
+    return df_real
+
+
 def calcula_medidas(G: nx.Graph, iteracao:int, nome_rede:str):
     """Função para calcular as medidas especificadas
      em `MEDIDAS` e atualizar os resultados.
@@ -139,6 +176,9 @@ def main(modelo:str):
         print(f'N: {N}, <k>: {grau_medio:.4f}')
         print(f'Tempo com a rede: {(time.time() - t_carregar):.2f} segs.\n')
 
+        print(f'\nComeçando agora a compilar o arquivo de rede real [{rede}] com os resultados.')
+        df_saida = rede_real(rede)
+        df_saida.to_csv('./rede_real_'+str(rede)+'.csv', index = False)
 
         ######################################
         # simulando o modelo para esta rede
