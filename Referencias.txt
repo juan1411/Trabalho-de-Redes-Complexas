@@ -4,6 +4,6 @@ http://konect.cc/categories/Social/
 Têm mais sites no pdf que o Professor passou para o trabalho
 extra de classificação de redes. 
 
-Twitter Follows (20mil): http://konect.cc/networks/ego-twitter/
 Facebook (NIPS) : http://konect.cc/networks/ego-facebook/
 Hamsterster full : http://konect.cc/networks/petster-hamster/
+Adolescent health: http://konect.cc/networks/moreno_health/

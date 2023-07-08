@@ -21,9 +21,9 @@ Específico dos algoritmos de simulação:
  - [X] calcular as medidas das simulações;
  - [X] salvar as medidas em um arquivo `.csv`;
  - [X] repetir os códigos para todas redes sociais;
- - [ ] Precisamos definir tudo ainda, então devem surgir bugs...
+ - [!] Precisamos definir tudo ainda, então devem surgir bugs...
  - [X] (extra) simular os modelos em paralelo;
- - [ ] (extra) calcular as medidas em paralelo;
+ - [?] (extra) calcular as medidas em paralelo;
 
 ---
 

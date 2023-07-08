@@ -15,109 +15,45 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from CONSTANTES import *
 
 
-def ler_rede(nome:str) -> tuple:
+def ler_rede(nome:str, grafo:bool=False) -> tuple:
     """Função para ler as redes e pegar o N (quantidade de nós) e <k> (grau médio).
 
-    `nome`: str
-        apelido interno da rede/chave do dicionário `rede_sociais`.
-
-    return: tuple
-        É retornado justamente o N e o <k>. (N, k).
-    """    
-    # carregando em um objeto `nx.Graph`
-    G = nx.read_edgelist('./redes/' + redes_sociais[nome], comments='%', nodetype=int)
-    # G = G.to_undirected()
-    # G.remove_edges_from(nx.selfloop_edges(G))
-    # Gcc = sorted(nx.connected_components(G), key=len, reverse=True)
-    # G = G.subgraph(Gcc[0])
-    # G = nx.convert_node_labels_to_integers(G, first_label=0)
-
-    # obtendo o N e o <k>:
-    grais = np.array(G.degree)
-    N = grais.shape[0]
-    grau_medio = grais[:, 1].mean()
-
-    del G, grais # economizando memoria
-    return int(N), grau_medio
-
-
-def rede_real(nome:str) -> tuple:
-    """Função para ler as redes e pegar o N (quantidade de nós) e <k> (grau médio).
-
-    `nome`: str
-        apelido interno da rede/chave do dicionário `rede_sociais`.
-
-    return: tuple
-        É retornado justamente o N e o <k>. (N, k).
-    """    
-    # carregando em um objeto `nx.Graph`
-    G = nx.read_edgelist('./redes/' + redes_sociais[nome], comments='%', nodetype=int)
-    # G = G.to_undirected()
-    # G.remove_edges_from(nx.selfloop_edges(G))
-    # Gcc = sorted(nx.connected_components(G), key=len, reverse=True)
-    # G = G.subgraph(Gcc[0])
-    # G = nx.convert_node_labels_to_integers(G, first_label=0)
-
-    # obtendo o N e o <k>:
-    grais = np.array(G.degree)
-    N = grais.shape[0]
-    grau_medio = grais[:, 1].mean()
-
-    ass = nx.degree_assortativity_coefficient(G),
-    avc = nx.average_clustering(G),
-    ts =  nx.transitivity(G),
-    entropy =  shannon_entropy(G)
-
-    df_real =  pd.DataFrame({
-    'grau_medio': grau_medio,
-    'assortatividade': ass,
-    'coef_clusterizacao': avc,
-    'transitividade' : ts,
-    'entropy' : entropy})
-
-    return df_real
-
-
-def calcula_medidas(G: nx.Graph, iteracao:int, nome_rede:str):
-    """Função para calcular as medidas especificadas
-     em `MEDIDAS` e atualizar os resultados.
-    Atenção!! Os resultados que serão atualizados
-     estão em uma variável global.
-    
     # Parâmetros
-    `G`: networkx.Graph
-        grafo para o qual serão calculadas as medidas
+    `nome`: str
+        apelido interno da rede/chave do dicionário `rede_sociais`.
 
-    `iteracao`: int
-        número da iteração correspondente ao grafo `G`
+    `grafo`: bool, padrão `False`
+        indicação se a função deve ou não retornar o grafo carregado.
 
-    `nome_rede`: str
-        justamente o nome da rede social da qual `G` foi simulado
-    """
-    # variavel global
-    global resultados
+    # Retorno
+    É retornado justamente o N e o <k>: (N, k).
 
-    # calculando todas as medidas:
-    for med in MEDIDAS.keys():
-        medida = np.nan # inicializa a medida como NaN caso de algum erro
+    No caso em que `grafo = True`, é retornado apenas o Grafo: (G).
+    """    
+    # carregando em um objeto `nx.Graph`
+    if (nome == 'adolescente'):
+        G = nx.read_edgelist(
+            './redes/' + redes_sociais[nome], comments='%',
+            nodetype=int, data=(('weight', float),)
+        )
+    else:
+        G = nx.read_edgelist('./redes/' + redes_sociais[nome], comments='%', nodetype=int)
 
-        try: # tentando calcular a medida
-            medida = MEDIDAS[med](G)
+    if grafo: return G
+    else:
+        # obtendo o N e o <k>:
+        grais = np.array(G.degree)
+        N = grais.shape[0]
+        grau_medio = grais[:, 1].mean()
 
-        except Exception as e: # log de erro
-            print('Tentando calcular a medida', med, 'ocorreu o erro:', e)
-
-        finally: # em todo caso, sempre atualize os resultados
-            resultados.loc[(resultados['Iteracao']==iteracao) &
-                           (resultados['Rede Social']==nome_rede),
-                           med] = medida
+        del G, grais # economizando memoria
+        return int(N), grau_medio
 
 
 def simula_modelo(modelo:str, N:int, grau_medio:float) -> nx.Graph:
     """Função para simular o modelo uma única vez.
 
     # Parâmetros
-
     `modelo`: str
         nome do modelo que deve ser simulado; deve ser uma chave de `SIMULE`
 
@@ -128,10 +64,42 @@ def simula_modelo(modelo:str, N:int, grau_medio:float) -> nx.Graph:
         grau médio (ou número médio de conexões por nó) desejado para o grafo
 
     # Retorno
-    É retornado o grafo simulado, sendo ele um objeto `networkx.Graph`.
+    É retornado o maior componente (o subconjunto de nós interligados)
+    do grafo simulado, sendo ele um objeto `networkx.Graph`.
     """
+    # simulando o grafo:
     G_simulado = SIMULE[modelo](N, grau_medio)
+
+    G_simulado = G_simulado.to_undirected()
+    # G_simulado.remove_edges_from(nx.selfloop_edges(G_simulado))
+
+    Gcc = sorted(nx.connected_components(G_simulado), key=len, reverse=True)
+    G_simulado = G_simulado.subgraph(Gcc[0])
+    G_simulado = nx.convert_node_labels_to_integers(G_simulado, first_label=0)
+    del Gcc
     return G_simulado
+
+
+def simulacao_e_medidas(modelo:str, N:int, grau_medio:float) -> dict:
+    """Função para simular o modelo e calcular as medidas para sua maior componente.
+
+    # Parâmetros
+    `modelo`: str
+        nome do modelo que deve ser simulado; deve ser uma chave de `SIMULE`
+
+    `N`: int
+        número de vértices desejados para o grafo
+
+    `grau_medio`: float
+        grau médio (ou número médio de conexões por nó) desejado para o grafo
+
+    # Retorno
+    É retornado o dicionário com os resultados das medidas para a maior componente do grafo simulado.
+    """
+    G = simula_modelo(modelo, N, grau_medio)
+    medidas = calcula_medidas(G)
+    del G
+    return medidas
 
 
 def main(modelo:str):
@@ -140,8 +108,6 @@ def main(modelo:str):
     `modelo`: str
         nome do modelo que deve ser simulado.
     """
-    # variaveis globais:
-    global resultados
 
     # os nomes das redes sociais:
     chaves = [ch for ch in redes_sociais.keys()]
@@ -176,10 +142,6 @@ def main(modelo:str):
         print(f'N: {N}, <k>: {grau_medio:.4f}')
         print(f'Tempo com a rede: {(time.time() - t_carregar):.2f} segs.\n')
 
-        print(f'\nComeçando agora a compilar o arquivo de rede real [{rede}] com os resultados.')
-        df_saida = rede_real(rede)
-        df_saida.to_csv('./rede_real_'+str(rede)+'.csv', index = False)
-
         ######################################
         # simulando o modelo para esta rede
         # &
@@ -194,21 +156,28 @@ def main(modelo:str):
         with ProcessPoolExecutor(5) as executor:
 
             # basicamente, esse dicionario contem uma `resposta` do executor.submit
-            # essas `respostas` chegam assim que a funcao `simula_modelo` retorna algo
+            # essas `respostas` chegam assim que a funcao `simulacao_e_medidas` retorna algo
             futuros_retornos = {
-                executor.submit(simula_modelo, modelo, N, grau_medio):
+                executor.submit(simulacao_e_medidas, modelo, N, grau_medio):
                     (i, rede) for i in range(1, VEZES+1)
-                }
+            }
 
             # assim que `executor.submit` retornar uma resposta,
             # já é possível entrar neste for-loop
             for simulacao in as_completed(futuros_retornos):
                 ite, nome_rede = futuros_retornos[simulacao]
                 print(f'{nome_rede.capitalize()} \tSimulação #{ite} \tOK')
-                G_simulado = simulacao.result()
 
-                # calculando todas as medidas para o grafo simulado
-                calcula_medidas(G_simulado, ite, nome_rede)
+                # salvando o resultados dos calculos das medidas para o grafo simulado
+                res_medidas = simulacao.result()
+                res_medidas['Rede Social'] = nome_rede
+                res_medidas['Iteracao'] = ite
+                idx = resultados[
+                    (resultados['Rede Social']==nome_rede)
+                    & (resultados['Iteracao']==ite)
+                ]
+                idx = idx.index[0]
+                resultados.update(pd.DataFrame(res_medidas, index=[idx]))
                 print(f'{rede.capitalize()} \tMedidas #{ite} \tOK')
 
 
@@ -245,16 +214,28 @@ def main(modelo:str):
 
 
 if __name__ == '__main__':
-    # msg = '\nOlá, este é o arquivo para simular os modelos e calcular as métricas!!!'
-    # msg += '\nEle segue o seguinte pipeline:'
-    # msg += '\n\t 1. definição o modelo; \n\t 2. carregamento uma rede social;'
-    # msg += '\n\t 3. obtenção do N e do <k> da rede; \n\t 4. descarregamento a rede;'
-    # msg += '\n\t 5. simulação `i` vezes do modelo para a rede;'
-    # msg += '\n\t 6. cálculo das métricas para cada simulação;'
-    # msg += '\n\t 7. repetição de 2. a 6. para todas as redes sociais;'
-    # msg += '\n\t 8. salvamento dos resultados em um arquivo .csv.\n'
-    # msg += '\nEntão, por favor, defina o modelo. As opções disponíveis são:'
-    # print(msg)
+    msg = '\nOlá, este é o arquivo para simular os modelos e calcular as métricas!!!'
+    msg += '\nEle segue o seguinte pipeline:'
+    msg += '\n\t 1. definição o modelo; \n\t 2. carregamento uma rede social;'
+    msg += '\n\t 3. obtenção do N e do <k> da rede; \n\t 4. descarregamento a rede;'
+    msg += '\n\t 5. simulação `i` vezes do modelo para a rede;'
+    msg += '\n\t 6. cálculo das métricas para cada simulação;'
+    msg += '\n\t 7. repetição de 2. a 6. para todas as redes sociais;'
+    msg += '\n\t 8. salvamento dos resultados em um arquivo .csv.\n'
+    msg += '\nEntão, por favor, defina o modelo. As opções disponíveis são:'
+    print(msg)
     opcoes = list(SIMULE.keys())
-    for modelo in opcoes:
+    print(opcoes,
+          '\nTambém é possível não digitar nada ou escrever `todos` para simular todos os modelos.'
+    )
+    del msg # economizando memoria
+
+    modelo = input('\nModelo escolhido: ')
+    while (modelo not in opcoes and modelo != '' and modelo != 'todos'):
+        print('Esta opção de modelo não é válida, escolha uma da lista ou todas.')
+        modelo = input('\nModelo: ').lower()
+
+    if (modelo == '' or modelo == 'todos'):
+        for mod in opcoes: main(mod)
+    else:
         main(modelo)

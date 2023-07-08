@@ -3,28 +3,60 @@
 ########################################################################
 import networkx as nx
 import numpy as np
-import math
+
+
+# quantidade de vezes que deve simular os modelos:
+VEZES = 10
+
+# dicionario com o caminho ate os dados de cada rede social:
+redes_sociais = {
+    'adolescente': 'moreno_health/out.moreno_health_health',
+    'facebook': 'ego-facebook/out.ego-facebook',
+    'hamster': 'petster-hamster/out.petster-hamster'
+}
+
+
+#######################################################
+# vamos padronizar as funcoes para simular os modelos
+# de forma que: elas recebam (N, k) e retornem o grafo.
+erdos     = lambda N, k: nx.erdos_renyi_graph(N, k/(N-1))
+barabasi  = lambda N, k: nx.barabasi_albert_graph(N, int(k/2))
+wattz_p1  = lambda N, k: nx.watts_strogatz_graph(N, int(k), p=1)
+wattz_p05 = lambda N, k: nx.watts_strogatz_graph(N, int(k), p=0.5)
+wattz_p0  = lambda N, k: nx.watts_strogatz_graph(N, int(k), p=0.0001)
+
+
+# dicionario com as funcoes para simular os modelos
+SIMULE = {
+    'ER': erdos,
+    'BA': barabasi,
+    'WS_p10' : wattz_p1,
+    'WS_p05' : wattz_p05,
+    'WS_p00' : wattz_p0
+}
+
+#######################################################
+# vamos padronizar as funcoes para calcular a metricas
+# de forma que: elas recebam G e retornem a metrica.
+grau_medio = lambda G: np.array(G.degree)[:, 1].mean()
 
 
 def degree_distribution(GER):
     vk = dict(GER.degree())
-    vk = list(vk.values()) # we get only the degree values
+    vk = list(vk.values())
     maxk = np.max(vk)
-    mink = np.min(min)
-    kvalues= np.arange(0,maxk+1) # possible values of k
-    Pk = np.zeros(maxk+1) # P(k)
-    for k in vk:
-        Pk[k] = Pk[k] + 1
-    Pk = Pk/sum(Pk) # the sum of the elements of P(k) must to be equal to one
-    return kvalues,Pk
+    kvalues= np.arange(0, maxk+1)
+    Pk = np.zeros(maxk+1)
+    for k in vk: Pk[k] += 1
+    Pk = Pk/sum(Pk)
+    return kvalues, Pk
 
 
 def shannon_entropy(G):
-    k,Pk = degree_distribution(G)
+    _, Pk = degree_distribution(G)
     H = 0
     for p in Pk:
-        if(p > 0):
-            H = H - p*math.log(p, 2)
+        if(p > 0): H -= p*np.log2(p)
     return H
 
 
@@ -44,41 +76,9 @@ corr_grau_bet = lambda G: np.corrcoef(
     )[0,1]
 
 
-# quantidade de vezes que deve simular os modelos:
-VEZES = 10
-
-# dicionario com o caminho ate os dados de cada rede social:
-redes_sociais = {
-    'twitter-pequeno': 'ego-twitter/out.ego-twitter',
-    'facebook': 'ego-facebook/out.ego-facebook',
-    'hamster': 'petster-hamster/out.petster-hamster',
-    #'bitcoin': 'download.tsv.soc-sign-bitcoinotc/soc-sign-bitcoinotc/out.soc-sign-bitcoinotc'
-    # 'twitter-medio': 'munmun_twitter_social/out.munmun_twitter_social'
-    # 'youtube': 'com-youtube/out.com-youtube'
-}
-
-#######################################################
-# vamos padronizar as funcoes para simular os modelos
-# de forma que: elas recebam (N, k) e retornem o grafo.
-erdos    = lambda N, k: nx.erdos_renyi_graph(N, k/(N-1))
-barabasi = lambda N, k: nx.barabasi_albert_graph(N, int(k/2))
-wattz =    lambda N, k: nx.watts_strogatz_graph(N, int(k),p = 1) ####Debugar
-
-
-
-# dicionario com as funcoes para simular os modelos
-SIMULE = {'erdos-renyi': erdos,
-          'barabasi-albert': barabasi,
-          'watts_strogatz_graph' : wattz
-        }
-
-#######################################################
-# vamos padronizar as funcoes para calcular a metricas
-# de forma que: elas recebam G e retornem a metrica.
-grau_medio = lambda G: np.array(G.degree)[:, 1].mean()
-
 # bc_mean = lambda G: np.mean(
 #     list(dict(nx.betweenness_centrality(G)).values()))
+
 
 # dicionario com as funcoes para calcular as medidas
 MEDIDAS = {
@@ -86,11 +86,39 @@ MEDIDAS = {
     'assortatividade':nx.degree_assortativity_coefficient,
     'coef_clusterizacao': nx.average_clustering,
     'transitividade' : nx.transitivity,
-    'entropy' : shannon_entropy,
-    # 'cor_grau_e_grau_medio_vizinhos': corr_grau_vizinhos,
-    # 'cor_grau_e_proximidade': corr_grau_close,
-    # 'cor_grau_e_centralidade': corr_grau_bet,
-    #  'average_shortests_path_lenght' : nx.average_shortest_path_length,
-    # 'diametro': nx.diameter
-   # 'bc_mean': bc_mean
+    'entropia' : shannon_entropy,
+    'media_dos_menores_caminhos' : nx.average_shortest_path_length,
+    'diametro': nx.diameter,
+    'cor_grau_e_grau_medio_vizinhos': corr_grau_vizinhos,
+    'cor_grau_e_proximidade': corr_grau_close
+    # 'cor_grau_e_centralidade': corr_grau_bet
+    # 'bc_mean': bc_mean
 }
+
+
+
+def calcula_medidas(G: nx.Graph) -> dict:
+    """Função para calcular todas as medidas especificadas em `MEDIDAS`.
+    
+    # Parâmetros
+    `G`: networkx.Graph
+        grafo para o qual serão calculadas as medidas
+    
+    # Retorno
+    É retornado um dicionario com os pares (`nome: str:`, `valor: [numpy.nan|numpy.float32]`). 
+    """
+    calculos = {}
+    for med in MEDIDAS.keys():
+        valor = np.nan # inicializa o valor como NaN caso de algum erro
+
+        try: # tentando calcular a medida
+            valor = np.float32(MEDIDAS[med](G))
+
+        except Exception as e: # log de erro
+            print('Tentando calcular a medida', med, '\nocorreu o erro:', e)
+
+        finally:
+            calculos[str(med)] = valor #CALCULAR(med, G)
+            # print(med, 'calculada.')
+
+    return calculos
