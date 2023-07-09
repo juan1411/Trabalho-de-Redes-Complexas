@@ -30,14 +30,14 @@ Específico dos algoritmos de simulação:
 Específico do notebook de visualização:
 
  - [X] carregar os dados das redes sociais originais;
- - [ ] plotar as redes originais;
- - [ ] (talvez) plotar o grau vs alguma outra propriedade ou medida...
+ - [X] plotar as redes originais;
+ - [?] (talvez) plotar o grau vs alguma outra propriedade ou medida...
  - [X] calcular as medidas para cada rede social;
  - [X] carregar os arquivos com as medidas simuladas;
- - [ ] mostrar uma tabela com as medidas simuladas e as medidas reais;
+ - [X] mostrar uma tabela com as medidas simuladas e as medidas reais;
  - [X] aplicar o método de redução de dimensão;
- - [ ] plotar em 2D os modelos simuladas e as redes originais;
- 	 - [ ] precisa ficar claro qual é a rede social em questão;
-	 - [ ] precisa ficar claro quais são os modelos simulados;
+ - [X] plotar em 2D os modelos simuladas e as redes originais;
+ 	 - [X] precisa ficar claro qual é a rede social em questão;
+	 - [X] precisa ficar claro quais são os modelos simulados;
  - [X] classificar as redes de acordo com os modelos;
  - [ ] conclusão.
