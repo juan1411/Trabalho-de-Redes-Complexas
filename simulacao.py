@@ -15,41 +15,6 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from CONSTANTES import *
 
 
-def ler_rede(nome:str, grafo:bool=False) -> tuple:
-    """Função para ler as redes e pegar o N (quantidade de nós) e <k> (grau médio).
-
-    # Parâmetros
-    `nome`: str
-        apelido interno da rede/chave do dicionário `rede_sociais`.
-
-    `grafo`: bool, padrão `False`
-        indicação se a função deve ou não retornar o grafo carregado.
-
-    # Retorno
-    É retornado justamente o N e o <k>: (N, k).
-
-    No caso em que `grafo = True`, é retornado apenas o Grafo: (G).
-    """    
-    # carregando em um objeto `nx.Graph`
-    if (nome == 'adolescente'):
-        G = nx.read_edgelist(
-            './redes/' + redes_sociais[nome], comments='%',
-            nodetype=int, data=(('weight', float),)
-        )
-    else:
-        G = nx.read_edgelist('./redes/' + redes_sociais[nome], comments='%', nodetype=int)
-
-    if grafo: return G
-    else:
-        # obtendo o N e o <k>:
-        grais = np.array(G.degree)
-        N = grais.shape[0]
-        grau_medio = grais[:, 1].mean()
-
-        del G, grais # economizando memoria
-        return int(N), grau_medio
-
-
 def simula_modelo(modelo:str, N:int, grau_medio:float) -> nx.Graph:
     """Função para simular o modelo uma única vez.
 
@@ -230,12 +195,12 @@ if __name__ == '__main__':
     )
     del msg # economizando memoria
 
-    modelo = input('\nModelo escolhido: ')
-    while (modelo not in opcoes and modelo != '' and modelo != 'todos'):
+    modelo = input('\nModelo escolhido: ').upper()
+    while (modelo not in opcoes and modelo != '' and modelo != 'TODOS'):
         print('Esta opção de modelo não é válida, escolha uma da lista ou todas.')
-        modelo = input('\nModelo: ').lower()
+        modelo = input('\nModelo: ').upper()
 
-    if (modelo == '' or modelo == 'todos'):
+    if (modelo == '' or modelo == 'TODOS'):
         for mod in opcoes: main(mod)
     else:
         main(modelo)
