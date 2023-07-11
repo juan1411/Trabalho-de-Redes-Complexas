@@ -9,7 +9,7 @@ O que precisa ser feito no Trabalho:
 - [X] organizar um notebook de visualização das propriedades das redes;
 - [X] definir um método de redução de dimensionalidade;
 - [X] rodar um Classificador; **(Acabamos acrescentando mais);
-- [ ] escrever e revisar o texto de suporte/acompanhamento do notebook.
+- [X] escrever e revisar o texto de suporte/acompanhamento do notebook.
 
 ---
 
@@ -42,4 +42,4 @@ Específico do notebook de visualização:
  	 - [X] precisa ficar claro qual é a rede social em questão;
 	 - [X] precisa ficar claro quais são os modelos simulados;
  - [X] classificar as redes de acordo com os modelos;
- - [ ] escrever a conclusão.
+ - [X] escrever a conclusão.
