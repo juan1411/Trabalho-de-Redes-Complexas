@@ -5,10 +5,11 @@ O que precisa ser feito no Trabalho:
 - [X] definir quais modelos vamos usar para simulação;
 - [X] definir quais medidas de rede vamos salvar;
 - [X] implementar o algoritmo de simulação para cada modelo;
-- [X] definir a quantidade de simulações de cada modelo;
-- [ ] organizar um notebook de visualização das propriedades das redes;
+- [X] definir a quantidade de simulações de cada modelo; **(30)
+- [X] organizar um notebook de visualização das propriedades das redes;
 - [X] definir um método de redução de dimensionalidade;
-- [ ] Rodar um Classificador
+- [X] rodar um Classificador; **(Acabamos acrescentando mais);
+- [ ] escrever e revisar o texto de suporte/acompanhamento do notebook.
 
 ---
 
@@ -29,6 +30,7 @@ Específico dos algoritmos de simulação:
 
 Específico do notebook de visualização:
 
+ - [X] escrever a introdução (com as referências);
  - [X] carregar os dados das redes sociais originais;
  - [X] plotar as redes originais;
  - [?] (talvez) plotar o grau vs alguma outra propriedade ou medida...
@@ -40,4 +42,4 @@ Específico do notebook de visualização:
  	 - [X] precisa ficar claro qual é a rede social em questão;
 	 - [X] precisa ficar claro quais são os modelos simulados;
  - [X] classificar as redes de acordo com os modelos;
- - [ ] conclusão.
+ - [ ] escrever a conclusão.

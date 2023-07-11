@@ -57,7 +57,7 @@ erdos     = lambda N, k: nx.erdos_renyi_graph(N, k/(N-1))
 barabasi  = lambda N, k: nx.barabasi_albert_graph(N, int(k/2))
 wattz_p1  = lambda N, k: nx.watts_strogatz_graph(N, int(k), p=1)
 wattz_p05 = lambda N, k: nx.watts_strogatz_graph(N, int(k), p=0.5)
-wattz_p01  = lambda N, k: nx.watts_strogatz_graph(N, int(k), p=0.01)
+wattz_p01 = lambda N, k: nx.watts_strogatz_graph(N, int(k), p=0.01)
 
 
 # dicionario com as funcoes para simular os modelos
