@@ -131,7 +131,7 @@ def main(modelo:str):
             # já é possível entrar neste for-loop
             for simulacao in as_completed(futuros_retornos):
                 ite, nome_rede = futuros_retornos[simulacao]
-                print(f'{nome_rede.capitalize()} \tSimulação #{ite} \tOK')
+                # print(f'{nome_rede.capitalize()} \tSimulação #{ite} \tOK')
 
                 # salvando o resultados dos calculos das medidas para o grafo simulado
                 res_medidas = simulacao.result()
@@ -167,7 +167,7 @@ def main(modelo:str):
     nome_arq = 'Modelo_'+str(modelo)+'.csv'
     print(f'\nComeçando agora a compilar o arquivo [{nome_arq}] com os resultados.')
     t_resultados = time.time()
-    resultados.to_csv(nome_arq, index=False)
+    resultados.to_csv('modelos/'+nome_arq, index=False)
 
     print('Fim da compilação dos resultados.')
     print(f'Tempo de compilação: {(time.time() - t_resultados):.2f} segs.\n')
